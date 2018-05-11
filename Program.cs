@@ -9,79 +9,48 @@ namespace statePred
     class Program
     {
          // STEP 1: Define your data structures
-
-        // IrisData is used to provide training data, and as input for prediction operations
-        // Rem: replace Jita data is used to predict the state of user based on ?
-        // - First 4 properties are inputs/features used to predict the label
-        // - Label is what you are predicting, and is only set when training
-        public class IrisData
-        {
-            [Column("0")]
-            public float SepalLength;
-
-            [Column("1")]
-            public float SepalWidth;
-
-            [Column("2")]
-            public float PetalLength;
-
-            [Column("3")]
-            public float PetalWidth;
-
-            [Column("4")]
-            [ColumnName("Label")]
-            public string Label;
-        }
-
-         // IrisPrediction is the result returned from prediction operations
-        public class IrisPrediction
-        {
-            [ColumnName("PredictedLabel")]
-            public string PredictedLabels;
-        }
-
+        // use HeliData       
+     
         static void Main(string[] args)
         {
-            Console.WriteLine("ML demo!");
+            Console.WriteLine("ML for Heli state!");
 
             // STEP 2: Create a pipeline and load your data
             var pipeline = new LearningPipeline();
 
             // If working in Visual Studio, make sure the 'Copy to Output Directory' 
-            // property of iris-data.txt is set to 'Copy always'
-            string dataPath = "iris-data.txt";
-            pipeline.Add(new TextLoader<IrisData>(dataPath, separator: ","));
+            // property of dataPath is set to 'Copy always'
+            string dataPath = "feedbacks-19.txt";
+            //pipeline.Add(new TextLoader<IrisData>(dataPath, separator: ","));
+            pipeline.Add(new TextLoader<HeliData>(dataPath, separator: ","));
 
             // STEP 3: Transform your data
             // Assign numeric values to text in the "Label" column, because only
             // numbers can be processed during model training
             pipeline.Add(new Dictionarizer("Label"));
 
-            // Puts all features into a vector
-            pipeline.Add(new ColumnConcatenator("Features", "SepalLength", "SepalWidth", "PetalLength", "PetalWidth"));
+            // Puts all features into a vector            
+            pipeline.Add(new ColumnConcatenator("Features", "Adherence"));
 
             // STEP 4: Add learner
             // Add a learning algorithm to the pipeline. 
-            // This is a classification scenario (What type of iris is this?)
+            // This is a classification scenario (Question: What type of state is this?)
             pipeline.Add(new StochasticDualCoordinateAscentClassifier());
 
              // Convert the Label back into original text (after converting to number in step 3)
             pipeline.Add(new PredictedLabelColumnOriginalValueConverter() { PredictedLabelColumn = "PredictedLabel" });
 
             // STEP 5: Train your model based on the data set
-            var model = pipeline.Train<IrisData, IrisPrediction>();
+            var model = pipeline.Train<HeliData, HeliPrediction>();
 
             // STEP 6: Use your model to make a prediction
-            // You can change these numbers to test different predictions
-            var prediction = model.Predict(new IrisData()
+            // You can change these numbers to test different predictions            
+            var inputData = new HeliData()
             {
-                SepalLength = 3.3f,
-                SepalWidth = 1.6f,
-                PetalLength = 0.2f,
-                PetalWidth = 5.1f,
-            });
-
-            Console.WriteLine($"Predicted flower type is: {prediction.PredictedLabels}");
+                Adherence = 0.3f                
+            };
+             var prediction = model.Predict(inputData);
+            Console.WriteLine($"Predicted state type for adh {inputData.Adherence} is: {prediction.PredictedLabels}");
         }
     }
 }

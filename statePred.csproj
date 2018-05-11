@@ -9,4 +9,10 @@
     <PackageReference Include="Microsoft.ML" Version="0.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="feedbacks-19.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
