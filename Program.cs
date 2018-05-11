@@ -36,6 +36,8 @@ namespace statePred
             // Add a learning algorithm to the pipeline. 
             // This is a classification scenario (Question: What type of state is this?)
             pipeline.Add(new StochasticDualCoordinateAscentClassifier());
+            //pipeline.Add(new NaiveBayesClassifier());
+            //pipeline.Add(new LogisticRegressor());
 
              // Convert the Label back into original text (after converting to number in step 3)
             pipeline.Add(new PredictedLabelColumnOriginalValueConverter() { PredictedLabelColumn = "PredictedLabel" });
